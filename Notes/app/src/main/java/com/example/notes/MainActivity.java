@@ -1,4 +1,4 @@
-package com.example.notes;// 依你的包名調整
+package com.example.notes;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;

@@ -29,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
 
             Toast.makeText(RegisterActivity.this, "註冊成功：" + email, Toast.LENGTH_SHORT).show();
 
-            // 回到上一頁（登入頁）
+
             finish();
         });
     }
