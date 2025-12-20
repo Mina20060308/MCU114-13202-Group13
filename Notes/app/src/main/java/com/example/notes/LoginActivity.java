@@ -1,24 +1,53 @@
 package com.example.notes;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import com.example.notes.R;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class LoginActivity extends AppCompatActivity {
+
+    private EditText etEmail, etPassword;
+    private Button btnLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        // 1️⃣ 找到元件
+        etEmail = findViewById(R.id.etEmail);
+        etPassword = findViewById(R.id.etPassword);
+        btnLogin = findViewById(R.id.btnLogin);
+
+        // 2️⃣ 登入按鈕事件
+        btnLogin.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+
+            if(email.isEmpty() || password.isEmpty()){
+                Toast.makeText(this, "請輸入帳號與密碼", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 假設驗證成功 → 跳到 HomeActivity
+            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish(); // 登入頁不再返回
+        });
+        // 3️⃣ 點擊「還沒有帳號？」 → 跳到註冊頁面
+        tvGoRegister.setOnClickListener(v -> {
+            // 使用 FragmentTransaction
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new RegisterFragment()) // fragment_container 是你的 FrameLayout
+                    .addToBackStack(null) // 可以按返回鍵回到登入頁
+                    .commit();
         });
     }
 }
+

@@ -1,64 +1,132 @@
 package com.example.notes;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link TodayFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.notes.database.Task;
+import com.example.notes.database.TaskRepository;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class TodayFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private TaskAdapter adapter;
+    private TaskRepository repository;
+    private RecyclerView recyclerView;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public TodayFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TodayFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static TodayFragment newInstance(String param1, String param2) {
-        TodayFragment fragment = new TodayFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
+    @Nullable
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
+
+        View view = inflater.inflate(R.layout.fragment_today, container, false);
+
+        // Repository
+        repository = new TaskRepository(requireContext());
+
+        // 新增輸入區
+        View layoutAddTask = view.findViewById(R.id.layoutAddTask);
+        EditText etNewTask = view.findViewById(R.id.etNewTask);
+        Button btnAddTask = view.findViewById(R.id.btnAddTask);
+        CheckBox cbNewTask = view.findViewById(R.id.cbNewTask);
+
+        // 底部「＋ 新增提醒事項」
+        View tvAddTask = view.findViewById(R.id.tvAddTask);
+        tvAddTask.setOnClickListener(v -> {
+            if (layoutAddTask.getVisibility() == View.VISIBLE) {
+                layoutAddTask.setVisibility(View.GONE);
+            } else {
+                layoutAddTask.setVisibility(View.VISIBLE);
+            }
+        });
+
+        btnAddTask.setOnClickListener(v -> {
+            String text = etNewTask.getText().toString().trim();
+            if (text.isEmpty()) return;
+
+            boolean isDone = cbNewTask.isChecked();
+
+            Task task = new Task(
+                    0,
+                    text,
+                    "2025-12-20",   // 之後可以換成今天
+                    null,
+                    "morning",     // 先預設
+                    isDone
+            );
+
+            repository.insertTask(task);
+            loadTodayTasks();
+
+            // 清空狀態
+            etNewTask.setText("");
+            cbNewTask.setChecked(false);
+            layoutAddTask.setVisibility(View.GONE);
+        });
+
+        // RecyclerView
+        recyclerView = view.findViewById(R.id.recyclerTodayTasks);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // 初次載入
+        loadTodayTasks();
+
+        return view;
+    }
+
+
+    // =========================
+    // 只留一個載入方法
+    // =========================
+    private void loadTodayTasks() {
+
+        List<Task> allTasks = repository.getAllTasks();
+
+        List<Task> morningTasks = new ArrayList<>();
+        List<Task> afternoonTasks = new ArrayList<>();
+        List<Task> nightTasks = new ArrayList<>();
+
+        for (Task task : allTasks) {
+            if (task.getPeriod() == null) continue;
+
+            switch (task.getPeriod()) {
+                case "morning":
+                    morningTasks.add(task);
+                    break;
+                case "afternoon":
+                    afternoonTasks.add(task);
+                    break;
+                case "night":
+                    nightTasks.add(task);
+                    break;
+            }
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_today, container, false);
+        List<Task> taskList = new ArrayList<>();
+        taskList.addAll(morningTasks);
+        taskList.addAll(afternoonTasks);
+        taskList.addAll(nightTasks);
+
+        adapter = new TaskAdapter(taskList, task -> {
+            repository.updateTaskDone(task.getId(), !task.isDone());
+            loadTodayTasks();
+        });
+
+        recyclerView.setAdapter(adapter);
     }
 }

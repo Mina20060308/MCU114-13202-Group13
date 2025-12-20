@@ -39,106 +39,33 @@
                 android:orientation="vertical"
                 android:layout_marginStart="8dp">
 
+                <!-- 任務標題 -->
                 <EditText
-                    android:id="@+id/etTask1"
+                    android:id="@+id/editTaskTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="輸入事項內容"
-                    android:textSize="16sp"
-                    android:padding="8dp" />
+                    android:hint="輸入任務內容" />
 
+                <!-- 新增按鈕 -->
+                <Button
+                    android:id="@+id/btnSaveTask"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="新增"
+                    android:layout_marginTop="4dp" />
+
+                <!-- 可點選日期欄位（加邊框 + 日曆圖示） -->
                 <EditText
                     android:id="@+id/etTime1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="選擇時間"
+                    android:hint="選擇日期"
                     android:textSize="16sp"
-                    android:padding="8dp"
+                    android:padding="12dp"
                     android:layout_marginTop="4dp"
                     android:focusable="false"
-                    android:clickable="true" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- 事項 2 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
-
-            <CheckBox
-                android:id="@+id/cbTask2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="8dp">
-
-                <EditText
-                    android:id="@+id/etTask2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="輸入事項內容"
-                    android:textSize="16sp"
-                    android:padding="8dp" />
-
-                <EditText
-                    android:id="@+id/etTime2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="選擇時間"
-                    android:textSize="16sp"
-                    android:padding="8dp"
-                    android:layout_marginTop="4dp"
-                    android:focusable="false"
-                    android:clickable="true" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- 事項 3 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="8dp">
-
-            <CheckBox
-                android:id="@+id/cbTask3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="8dp">
-
-                <EditText
-                    android:id="@+id/etTask3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="輸入事項內容"
-                    android:textSize="16sp"
-                    android:padding="8dp" />
-
-                <EditText
-                    android:id="@+id/etTime3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="選擇時間"
-                    android:textSize="16sp"
-                    android:padding="8dp"
-                    android:layout_marginTop="4dp"
-                    android:focusable="false"
-                    android:clickable="true" />
+                    android:clickable="true"
+                    android:background="@drawable/edittext_border"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -154,8 +81,6 @@
             android:layout_marginStart="8dp"
             android:gravity="start" />
 
-        <!-- 下面原本的新增按鈕（如果你原本有就保留，沒有可以刪掉） -->
-
-
     </LinearLayout>
 </ScrollView>
+
