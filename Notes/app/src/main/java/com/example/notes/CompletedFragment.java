@@ -29,7 +29,7 @@ public class CompletedFragment extends Fragment {
         String[] completedItems = {"買早餐", "寫功課", "練習 Fragment"};
 
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, completedItems);
+                new ArrayAdapter<>(requireActivity(), android.R.layout.simple_list_item_1, completedItems);
 
         listView.setAdapter(adapter);
 

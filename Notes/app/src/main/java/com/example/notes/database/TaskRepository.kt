@@ -57,7 +57,7 @@ class TaskRepository(context: Context) {
     fun updateTaskDone(id: Int, isDone: Boolean) {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
-            put(TaskDatabaseHelper.COL_IS_DONE, if (isDone) 1 else 0)
+            put(TaskDatabaseHelper.COL_IS_DONE, if (isDone) 2 else 0)
         }
         db.update(
             TaskDatabaseHelper.TABLE_TASKS,

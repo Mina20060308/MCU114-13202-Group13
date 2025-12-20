@@ -18,27 +18,39 @@ import java.util.List;
 
 public class AllTasksFragment extends Fragment {
 
+    private RecyclerView rvAllTasks;
+    private TaskAdapter adapter;
+    private TaskRepository taskRepo;
+
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_all_tasks, container, false);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerAllTasks);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvAllTasks = view.findViewById(R.id.rvAllTasks);
 
-        TaskRepository repository = new TaskRepository(requireContext());
-        List<Task> taskList = repository.getAllTasks();
+        // 初始化資料庫
+        taskRepo = new TaskRepository(requireContext());
 
-        TaskAdapter adapter = new TaskAdapter(taskList, task -> {
-            // 之後再處理「完成 / 未完成」
-        });
+        // RecyclerView 設定
+        rvAllTasks.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        recyclerView.setAdapter(adapter);
+        // 讀取任務資料
+        loadAllTasks();
 
         return view;
+    }
+
+    private void loadAllTasks() {
+        List<Task> tasks = taskRepo.getAllTasks();
+        adapter = new TaskAdapter(tasks, task -> {
+            // 點擊任務可以做的事情，例如更新完成狀態
+            taskRepo.updateTaskDone(task.getId(), !task.isDone());
+            loadAllTasks(); // 更新畫面
+
+        });
+        rvAllTasks.setAdapter(adapter);
     }
 }
