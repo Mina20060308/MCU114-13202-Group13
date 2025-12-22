@@ -6,5 +6,7 @@ data class Task(
     val date: String,
     val time: String?,
     val period: String,
-    val isDone: Boolean = false
+    val isDone: Boolean = false,
+    val userId: Int // ⭐加上 userId
+
 )

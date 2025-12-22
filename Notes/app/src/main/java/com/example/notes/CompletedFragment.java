@@ -4,35 +4,65 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.notes.database.Task;
+import com.example.notes.database.TaskRepository;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CompletedFragment extends Fragment {
 
-    public CompletedFragment() {
+    private RecyclerView recyclerView;
+    private TaskAdapter adapter;
+    private TaskRepository repository;
+    private int userId;
 
-    }
+    public CompletedFragment() { }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_completed, container, false);
 
+        recyclerView = view.findViewById(R.id.recyclerCompletedTasks);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        ListView listView = view.findViewById(R.id.listCompleted);
+        repository = new TaskRepository(requireContext());
 
+        if (getArguments() != null) {
+            userId = getArguments().getInt("USER_ID", -1);
+        }
+        if (userId == -1) return view;
 
-        String[] completedItems = {"買早餐", "寫功課", "練習 Fragment"};
-
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(requireActivity(), android.R.layout.simple_list_item_1, completedItems);
-
-        listView.setAdapter(adapter);
+        loadCompletedTasks();
 
         return view;
+    }
+
+    private void loadCompletedTasks() {
+        List<Task> allTasks = repository.getTasksByUser(userId);
+
+        // 只撈已完成的任務
+        List<Task> completedTasks = allTasks.stream()
+                .filter(Task::isDone)
+                .collect(Collectors.toList());
+
+        adapter = new TaskAdapter(completedTasks, task -> {
+            // 可取消完成
+            repository.updateTaskDone(task.getId(), !task.isDone());
+            loadCompletedTasks();
+        });
+
+        recyclerView.setAdapter(adapter);
     }
 }

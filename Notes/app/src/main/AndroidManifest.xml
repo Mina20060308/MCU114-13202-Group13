@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.notes">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:allowBackup="true"
@@ -10,7 +11,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Notes">
 
-        <!-- 登入頁面（啟動 Activity） -->
         <activity
             android:name=".LoginActivity"
             android:exported="true">
@@ -20,14 +20,16 @@
             </intent-filter>
         </activity>
 
-        <!-- HomeActivity（登入後跳轉的頁面） -->
         <activity
             android:name=".HomeActivity"
             android:exported="true" />
 
-        <!-- 其他 Activity 可以依需求加這裡 -->
-        <!-- <activity android:name=".SomeOtherActivity" android:exported="true"/> -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
 
+        <receiver
+            android:name=".AlarmReceiver"
+            android:exported="true"/>
     </application>
-
 </manifest>

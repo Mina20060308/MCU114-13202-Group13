@@ -1,5 +1,10 @@
 package com.example.notes;
 
+import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,43 +15,70 @@ import androidx.fragment.app.Fragment;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private Button btnToday, btnAll, btnDone;
-    private TextView tvAdd;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        btnToday = findViewById(R.id.btnToday);
-        btnAll   = findViewById(R.id.btnAll);
-        btnDone  = findViewById(R.id.btnDone);
-        tvAdd    = findViewById(R.id.tvAdd);
+        // Android 13+ 通知權限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
+            }
+        }
+
+        // 建立通知頻道（Android 8+）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    "task_channel",
+                    "提醒事項通知",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            channel.setDescription("任務提醒");
+            channel.enableVibration(true);
+            channel.setLockscreenVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+
+        // 接收 LoginActivity 傳來的 userId
+        userId = getIntent().getIntExtra("USER_ID", -1);
+        if (userId == -1) {
+            finish();
+            return;
+        }
+
+        Button btnToday = findViewById(R.id.btnToday);
+        Button btnCompleted = findViewById(R.id.btnDone);
+        Button btnAll = findViewById(R.id.btnAll);
+        TextView tvAddTask = findViewById(R.id.tvAdd);
 
         btnToday.setOnClickListener(v -> openFragment(new TodayFragment()));
+        btnCompleted.setOnClickListener(v -> openFragment(new CompletedFragment()));
         btnAll.setOnClickListener(v -> openFragment(new AllTasksFragment()));
-        btnDone.setOnClickListener(v -> openFragment(new CompletedFragment()));
-        tvAdd.setOnClickListener(v -> openFragment(new AddTaskFragment()));
+        tvAddTask.setOnClickListener(v -> openFragment(new AddTaskFragment()));
     }
 
     private void openFragment(Fragment fragment) {
-        // 隱藏 Home 主畫面
+        Bundle bundle = new Bundle();
+        bundle.putInt("USER_ID", userId);
+        fragment.setArguments(bundle);
+
         findViewById(R.id.home_menu_layout).setVisibility(View.GONE);
 
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.home_fragment_container, fragment)
-                .addToBackStack(null) // 讓返回鍵可以回 Home
+                .addToBackStack(null)
                 .commit();
     }
 
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            // Fragment 回退
             getSupportFragmentManager().popBackStack();
-
-            // 延遲一點確保 Fragment 回退完成再顯示 Home
             getSupportFragmentManager().executePendingTransactions();
             if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
                 findViewById(R.id.home_menu_layout).setVisibility(View.VISIBLE);

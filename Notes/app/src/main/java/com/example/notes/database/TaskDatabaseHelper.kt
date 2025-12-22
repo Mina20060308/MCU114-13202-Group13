@@ -9,7 +9,7 @@ class TaskDatabaseHelper(context: Context) :
 
     companion object {
         const val DATABASE_NAME = "tasks.db"
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2 // 資料庫版本升級
 
         const val TABLE_TASKS = "tasks"
         const val COL_ID = "id"
@@ -18,6 +18,7 @@ class TaskDatabaseHelper(context: Context) :
         const val COL_TIME = "time"
         const val COL_PERIOD = "period"
         const val COL_IS_DONE = "is_done"
+        const val COL_USER_ID = "user_id" // 新增 userId
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -28,7 +29,8 @@ class TaskDatabaseHelper(context: Context) :
                 $COL_DATE TEXT,
                 $COL_TIME TEXT,
                 $COL_PERIOD TEXT,
-                $COL_IS_DONE INTEGER DEFAULT 0
+                $COL_IS_DONE INTEGER DEFAULT 0,
+                $COL_USER_ID INTEGER NOT NULL
             )
         """.trimIndent()
         db?.execSQL(createTable)

@@ -1,6 +1,6 @@
 package com.example.notes;
 
-import android.os.Bundle;
+import  android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,42 +15,53 @@ import com.example.notes.database.Task;
 import com.example.notes.database.TaskRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AllTasksFragment extends Fragment {
 
     private RecyclerView rvAllTasks;
     private TaskAdapter adapter;
     private TaskRepository taskRepo;
+    private int userId;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_all_tasks, container, false);
 
         rvAllTasks = view.findViewById(R.id.rvAllTasks);
-
-        // 初始化資料庫
-        taskRepo = new TaskRepository(requireContext());
-
-        // RecyclerView 設定
         rvAllTasks.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // 讀取任務資料
-        loadAllTasks();
+        taskRepo = new TaskRepository(requireContext());
 
+        if (getArguments() != null) {
+            userId = getArguments().getInt("USER_ID", -1);
+        }
+        if (userId == -1) return view;
+
+        loadAllTasks();
         return view;
     }
 
     private void loadAllTasks() {
-        List<Task> tasks = taskRepo.getAllTasks();
-        adapter = new TaskAdapter(tasks, task -> {
-            // 點擊任務可以做的事情，例如更新完成狀態
-            taskRepo.updateTaskDone(task.getId(), !task.isDone());
-            loadAllTasks(); // 更新畫面
+        List<Task> allTasks = taskRepo.getTasksByUser(userId);
 
+        // ⭐只顯示未完成的任務
+        List<Task> pendingTasks = allTasks.stream()
+                .filter(task -> !task.isDone())
+                .collect(Collectors.toList());
+
+        adapter = new TaskAdapter(pendingTasks, task -> {
+            // 打勾 → 標記為完成
+            taskRepo.updateTaskDone(task.getId(), true);
+
+            // 重新載入全部事項（已完成任務會消失）
+            loadAllTasks();
         });
+
         rvAllTasks.setAdapter(adapter);
     }
 }

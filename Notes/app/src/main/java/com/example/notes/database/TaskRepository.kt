@@ -16,21 +16,22 @@ class TaskRepository(context: Context) {
             put(TaskDatabaseHelper.COL_TIME, task.time)
             put(TaskDatabaseHelper.COL_PERIOD, task.period)
             put(TaskDatabaseHelper.COL_IS_DONE, if (task.isDone) 1 else 0)
+            put(TaskDatabaseHelper.COL_USER_ID, task.userId)
         }
         db.insert(TaskDatabaseHelper.TABLE_TASKS, null, values)
         db.close()
     }
 
-    /** 取得所有任務 */
-    fun getAllTasks(): List<Task> {
+    /** 根據使用者取得任務 */
+    fun getTasksByUser(userId: Int): List<Task> {
         val list = mutableListOf<Task>()
         val db = dbHelper.readableDatabase
 
         val cursor = db.query(
             TaskDatabaseHelper.TABLE_TASKS,
             null,
-            null,
-            null,
+            "${TaskDatabaseHelper.COL_USER_ID}=?",
+            arrayOf(userId.toString()),
             null,
             null,
             "${TaskDatabaseHelper.COL_ID} DESC"
@@ -43,7 +44,8 @@ class TaskRepository(context: Context) {
                 date = cursor.getString(cursor.getColumnIndexOrThrow(TaskDatabaseHelper.COL_DATE)),
                 time = cursor.getString(cursor.getColumnIndexOrThrow(TaskDatabaseHelper.COL_TIME)),
                 period = cursor.getString(cursor.getColumnIndexOrThrow(TaskDatabaseHelper.COL_PERIOD)),
-                isDone = cursor.getInt(cursor.getColumnIndexOrThrow(TaskDatabaseHelper.COL_IS_DONE)) == 1
+                isDone = cursor.getInt(cursor.getColumnIndexOrThrow(TaskDatabaseHelper.COL_IS_DONE)) == 1,
+                userId = cursor.getInt(cursor.getColumnIndexOrThrow(TaskDatabaseHelper.COL_USER_ID))
             )
             list.add(task)
         }
@@ -57,7 +59,7 @@ class TaskRepository(context: Context) {
     fun updateTaskDone(id: Int, isDone: Boolean) {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
-            put(TaskDatabaseHelper.COL_IS_DONE, if (isDone) 2 else 0)
+            put(TaskDatabaseHelper.COL_IS_DONE, if (isDone) 1 else 0)
         }
         db.update(
             TaskDatabaseHelper.TABLE_TASKS,

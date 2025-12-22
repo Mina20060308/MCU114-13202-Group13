@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -19,7 +18,7 @@
             android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
-        <!-- 事項 1 -->
+        <!-- 事項輸入區 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,10 +26,11 @@
             android:gravity="center_vertical"
             android:layout_marginTop="8dp">
 
+            <!-- CheckBox -->
             <CheckBox
-                android:id="@+id/cbTask1"
+                android:id="@+id/cbDone"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -46,6 +46,20 @@
                     android:layout_height="wrap_content"
                     android:hint="輸入任務內容" />
 
+                <!-- 可點選日期時間欄位 -->
+                <EditText
+                    android:id="@+id/etTime1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="選擇日期時間"
+                    android:textColorHint="#888888"
+                    android:textSize="16sp"
+                    android:padding="12dp"
+                    android:layout_marginTop="4dp"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:background="@android:drawable/edit_text"/>
+
                 <!-- 新增按鈕 -->
                 <Button
                     android:id="@+id/btnSaveTask"
@@ -54,18 +68,8 @@
                     android:text="新增"
                     android:layout_marginTop="4dp" />
 
-                <!-- 可點選日期欄位（加邊框 + 日曆圖示） -->
-                <EditText
-                    android:id="@+id/etTime1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="選擇日期"
-                    android:textSize="16sp"
-                    android:padding="12dp"
-                    android:layout_marginTop="4dp"
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:background="@drawable/edittext_border"/>
+
+
             </LinearLayout>
         </LinearLayout>
 
@@ -83,4 +87,3 @@
 
     </LinearLayout>
 </ScrollView>
-

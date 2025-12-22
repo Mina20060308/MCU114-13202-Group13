@@ -19,7 +19,7 @@ class UserRepository(context: Context) {
         db.close()
     }
 
-    /** 檢查 Email 是否存在 ✅（你缺的就是這個） */
+    /** 檢查 Email 是否存在 */
     fun isEmailExists(email: String): Boolean {
         val db = dbHelper.readableDatabase
         val cursor: Cursor = db.query(
@@ -55,5 +55,27 @@ class UserRepository(context: Context) {
         cursor.close()
         db.close()
         return success
+    }
+
+    /** 根據 Email 取得使用者 ID */
+    fun getUserIdByEmail(email: String): Int {
+        val db = dbHelper.readableDatabase
+        val cursor = db.query(
+            UserDatabaseHelper.TABLE_USERS,
+            arrayOf(UserDatabaseHelper.COL_ID),
+            "${UserDatabaseHelper.COL_EMAIL}=?",
+            arrayOf(email),
+            null,
+            null,
+            null
+        )
+
+        var id = -1
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndexOrThrow(UserDatabaseHelper.COL_ID))
+        }
+        cursor.close()
+        db.close()
+        return id
     }
 }
