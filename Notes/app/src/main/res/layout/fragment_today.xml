@@ -17,17 +17,19 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <!-- 大標題 -->
+
+
+        <!-- 早上 -->
         <TextView
-            android:id="@+id/tvTodayTitle"
+            android:id="@+id/tvTodayHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
             android:text="今日事項"
             android:textSize="24sp"
             android:textColor="#333333"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingBottom="16dp"/>
+            />
 
-        <!-- 早上 -->
         <TextView
             android:text="早上"
             android:textSize="20sp"

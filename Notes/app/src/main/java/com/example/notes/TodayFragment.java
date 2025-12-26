@@ -1,12 +1,10 @@
 package com.example.notes;
 
-import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -15,11 +13,11 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +38,7 @@ public class TodayFragment extends Fragment {
 
     private LinearLayout contentLayout, addTaskLayout;
     private EditText inputMorning, inputAfternoon, inputNight;
+    private TextView tvTodayHeader; // 今日事項標題
 
     @Nullable
     @Override
@@ -60,20 +59,15 @@ public class TodayFragment extends Fragment {
         inputMorning = view.findViewById(R.id.inputMorning);
         inputAfternoon = view.findViewById(R.id.inputAfternoon);
         inputNight = view.findViewById(R.id.inputNight);
+        tvTodayHeader = view.findViewById(R.id.tvTodayHeader);
 
-        // Android 13+ 動態請求通知權限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1001);
-            }
-        }
-
+        // 早上/中午/晚上
         inputMorning.setOnClickListener(v -> showInlineAddTaskAt(inputMorning));
         inputAfternoon.setOnClickListener(v -> showInlineAddTaskAt(inputAfternoon));
         inputNight.setOnClickListener(v -> showInlineAddTaskAt(inputNight));
 
-        addTaskLayout.setOnClickListener(v -> showInlineAddTaskAtTop());
+        // 左下新增事項 → 今日事項下
+        addTaskLayout.setOnClickListener(v -> showInlineAddTaskAtTodayHeader());
 
         loadTasks();
         return view;
@@ -81,27 +75,31 @@ public class TodayFragment extends Fragment {
 
     // 在指定 EditText 上方新增區塊
     private void showInlineAddTaskAt(EditText targetEditText) {
-        LinearLayout newTaskLayout = createInlineTaskLayout();
+        LinearLayout newTaskLayout = createInlineTaskLayout(null);
         contentLayout.addView(newTaskLayout, contentLayout.indexOfChild(targetEditText));
     }
 
-    // 左下新增 → 插在最上方，只會出現一個
-    private void showInlineAddTaskAtTop() {
-        if (contentLayout.getChildCount() > 0) {
-            View firstChild = contentLayout.getChildAt(0);
-            if (firstChild.getTag() != null && firstChild.getTag().equals("inlineTaskTop")) return;
-        }
+    // 今日事項標題下新增區塊（只允許一個）
+    private void showInlineAddTaskAtTodayHeader() {
+        String tag = "todayAddTask";
+        if (contentLayout.findViewWithTag(tag) != null) return;
 
-        LinearLayout newTaskLayout = createInlineTaskLayout();
-        newTaskLayout.setTag("inlineTaskTop");
-        contentLayout.addView(newTaskLayout, 0);
+        LinearLayout newTaskLayout = createInlineTaskLayout(tag);
+
+        if (tvTodayHeader != null) {
+            int index = contentLayout.indexOfChild(tvTodayHeader);
+            contentLayout.addView(newTaskLayout, index + 1);
+        } else {
+            contentLayout.addView(newTaskLayout);
+        }
     }
 
     // 建立 inline 區塊
-    private LinearLayout createInlineTaskLayout() {
+    private LinearLayout createInlineTaskLayout(String tag) {
         LinearLayout newTaskLayout = new LinearLayout(getContext());
         newTaskLayout.setOrientation(LinearLayout.HORIZONTAL);
         newTaskLayout.setPadding(0, 20, 0, 0);
+        if (tag != null) newTaskLayout.setTag(tag);
 
         CheckBox cbDone = new CheckBox(getContext());
 
@@ -145,8 +143,6 @@ public class TodayFragment extends Fragment {
             if (title.isEmpty()) return;
 
             Task task = new Task(0, title, "", time, "", false, userId);
-
-            // 插入資料庫並取得自增 ID
             long newId = dbHelper.insertTask(task);
             task.setId((int) newId);
 
@@ -183,14 +179,13 @@ public class TodayFragment extends Fragment {
         }
     }
 
-    // ===== 提前10分鐘通知 =====
     private void scheduleNotification(Task task) {
         if (task.isDone() || task.getTime() == null || task.getTime().isEmpty()) return;
 
         Context context = getContext();
         if (context == null) return;
 
-        AlarmManager am = context.getSystemService(AlarmManager.class);
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
 
         String[] hm = task.getTime().split(":");
@@ -211,29 +206,22 @@ public class TodayFragment extends Fragment {
 
         int requestCode = task.getId();
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= PendingIntent.FLAG_IMMUTABLE;
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, flags);
 
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (am.canScheduleExactAlarms()) {
-                    am.setAlarmClock(new AlarmManager.AlarmClockInfo(alarmTime.getTimeInMillis(), pendingIntent), pendingIntent);
-                } else {
-                    // 沒開精準鬧鐘，跳轉到系統設定頁面
-                    Toast.makeText(context, "請允許精準鬧鐘權限", Toast.LENGTH_SHORT).show();
-                    Intent settingsIntent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                    settingsIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(settingsIntent);
-                }
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pendingIntent);
-            } else {
-                am.setExact(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pendingIntent);
+        // API 31 精準鬧鐘檢查
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!am.canScheduleExactAlarms()) {
+                Toast.makeText(context, "請在系統設定允許精準鬧鐘", Toast.LENGTH_SHORT).show();
+                Intent settingsIntent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                settingsIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(settingsIntent);
+                return;
             }
-        } catch (SecurityException e) {
-            Toast.makeText(context, "無法排程精準鬧鐘，請在系統設定允許", Toast.LENGTH_SHORT).show();
         }
-    }
 
+        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmTime.getTimeInMillis(), pendingIntent);
+    }
 }

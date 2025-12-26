@@ -7,7 +7,8 @@ class TaskRepository(context: Context) {
 
     private val dbHelper = TaskDatabaseHelper(context)
 
-    fun insertTask(task: Task) {
+    // ✅ 新增資料，回傳新插入的 id
+    fun insertTask(task: Task): Long {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
             put(TaskDatabaseHelper.COL_TITLE, task.title)
@@ -17,8 +18,9 @@ class TaskRepository(context: Context) {
             put(TaskDatabaseHelper.COL_IS_DONE, if (task.isDone) 1 else 0)
             put(TaskDatabaseHelper.COL_USER_ID, task.userId)
         }
-        db.insert(TaskDatabaseHelper.TABLE_TASKS, null, values)
+        val id = db.insert(TaskDatabaseHelper.TABLE_TASKS, null, values)
         db.close()
+        return id
     }
 
     fun getTasksByUser(userId: Int): List<Task> {

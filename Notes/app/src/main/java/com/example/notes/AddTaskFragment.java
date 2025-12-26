@@ -135,7 +135,9 @@ public class AddTaskFragment extends Fragment {
         );
 
         new Thread(() -> {
-            repository.insertTask(task);
+            // ✅ 插入資料並回傳 id
+            long newId = repository.insertTask(task);
+            task.setId((int)newId);
 
             if (!task.isDone() && !TextUtils.isEmpty(task.getTime())) {
                 scheduleNotification(task);
@@ -161,7 +163,7 @@ public class AddTaskFragment extends Fragment {
         Context context = getContext();
         if (context == null) return;
 
-        AlarmManager am = context.getSystemService(AlarmManager.class);
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
 
         String[] hm = task.getTime().split(":");
@@ -171,11 +173,10 @@ public class AddTaskFragment extends Fragment {
         Calendar alarmTime = Calendar.getInstance();
 
         if (TextUtils.isEmpty(task.getDate())) {
-            // 每日任務
+            // 今日事項
             alarmTime.set(Calendar.HOUR_OF_DAY, hour);
             alarmTime.set(Calendar.MINUTE, minute);
             alarmTime.set(Calendar.SECOND, 0);
-            alarmTime.add(Calendar.MINUTE, -10); // ✅ 提前10分鐘
         } else {
             // 指定日期任務
             String[] ymd = task.getDate().split("-");
@@ -185,9 +186,13 @@ public class AddTaskFragment extends Fragment {
             alarmTime.set(Calendar.HOUR_OF_DAY, hour);
             alarmTime.set(Calendar.MINUTE, minute);
             alarmTime.set(Calendar.SECOND, 0);
-            alarmTime.add(Calendar.MINUTE, -10); // ✅ 提前10分鐘
         }
 
+        // 提前 10 分鐘
+        alarmTime.add(Calendar.MINUTE, -10);
+        if (alarmTime.before(Calendar.getInstance())) {
+            alarmTime = Calendar.getInstance(); // 如果時間已過，立即通知
+        }
 
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.putExtra("TITLE", task.getTitle());

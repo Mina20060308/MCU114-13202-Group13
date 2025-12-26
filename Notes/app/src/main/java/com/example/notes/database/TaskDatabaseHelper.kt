@@ -75,10 +75,10 @@ class TaskDatabaseHelper(context: Context) :
             do {
                 val task = Task(
                     id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ID)),
-                    title = cursor.getString(cursor.getColumnIndexOrThrow(COL_TITLE)),
-                    date = cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE)),
-                    time = cursor.getString(cursor.getColumnIndexOrThrow(COL_TIME)),
-                    period = cursor.getString(cursor.getColumnIndexOrThrow(COL_PERIOD)),
+                    title = cursor.getString(cursor.getColumnIndexOrThrow(COL_TITLE)) ?: "",
+                    date = cursor.getString(cursor.getColumnIndexOrThrow(COL_DATE)) ?: "",
+                    time = cursor.getString(cursor.getColumnIndexOrThrow(COL_TIME)) ?: "",
+                    period = cursor.getString(cursor.getColumnIndexOrThrow(COL_PERIOD)) ?: "",
                     isDone = cursor.getInt(cursor.getColumnIndexOrThrow(COL_IS_DONE)) == 1,
                     userId = cursor.getInt(cursor.getColumnIndexOrThrow(COL_USER_ID))
                 )
