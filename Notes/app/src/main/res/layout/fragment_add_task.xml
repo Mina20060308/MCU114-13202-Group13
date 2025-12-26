@@ -73,17 +73,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- 不要改掉的黃色「+ 新增事項」 -->
-        <TextView
-            android:id="@+id/tvAddMoreTask"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="＋ 新增事項"
-            android:textSize="16sp"
-            android:textColor="#FFC107"
-            android:layout_marginTop="24dp"
-            android:layout_marginStart="8dp"
-            android:gravity="start" />
+
 
     </LinearLayout>
 </ScrollView>

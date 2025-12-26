@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -38,7 +39,6 @@ public class HomeActivity extends AppCompatActivity {
             );
             channel.setDescription("任務提醒");
             channel.enableVibration(true);
-            channel.setLockscreenVisibility(androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
@@ -59,6 +59,22 @@ public class HomeActivity extends AppCompatActivity {
         btnCompleted.setOnClickListener(v -> openFragment(new CompletedFragment()));
         btnAll.setOnClickListener(v -> openFragment(new AllTasksFragment()));
         tvAddTask.setOnClickListener(v -> openFragment(new AddTaskFragment()));
+
+        // 使用 OnBackPressedDispatcher 處理返回
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStack();
+                    getSupportFragmentManager().executePendingTransactions();
+                    if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                        findViewById(R.id.home_menu_layout).setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    finish();
+                }
+            }
+        });
     }
 
     private void openFragment(Fragment fragment) {
@@ -73,18 +89,5 @@ public class HomeActivity extends AppCompatActivity {
                 .replace(R.id.home_fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
-            getSupportFragmentManager().executePendingTransactions();
-            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                findViewById(R.id.home_menu_layout).setVisibility(View.VISIBLE);
-            }
-        } else {
-            super.onBackPressed();
-        }
     }
 }

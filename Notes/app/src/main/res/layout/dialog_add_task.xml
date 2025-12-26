@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical">
+
+    <!-- 完成打勾 -->
+    <CheckBox
+        android:id="@+id/cbDialogDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"/>
+
+    <!-- 任務內容 + 提醒時間 (垂直排列) -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <!-- 任務內容 -->
+        <EditText
+            android:id="@+id/etDialogTask"
+            android:hint="輸入任務內容..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:inputType="text"/>
+
+        <!-- 提醒時間 -->
+        <EditText
+            android:id="@+id/etDialogTime"
+            android:hint="選擇提醒時間"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:background="@android:drawable/edit_text"
+            android:focusable="false"
+            android:clickable="true"
+            android:layout_marginTop="6dp"
+            android:inputType="none"/>
+    </LinearLayout>
+
+    <!-- 新增按鈕 -->
+    <Button
+        android:id="@+id/btnDialogAdd"
+        android:text="新增"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:background="@android:color/holo_blue_light"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"/>
+</LinearLayout>

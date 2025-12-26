@@ -7,7 +7,6 @@ class TaskRepository(context: Context) {
 
     private val dbHelper = TaskDatabaseHelper(context)
 
-    /** 新增任務 */
     fun insertTask(task: Task) {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
@@ -22,7 +21,6 @@ class TaskRepository(context: Context) {
         db.close()
     }
 
-    /** 根據使用者取得任務 */
     fun getTasksByUser(userId: Int): List<Task> {
         val list = mutableListOf<Task>()
         val db = dbHelper.readableDatabase
@@ -55,18 +53,12 @@ class TaskRepository(context: Context) {
         return list
     }
 
-    /** 更新完成狀態 */
     fun updateTaskDone(id: Int, isDone: Boolean) {
         val db = dbHelper.writableDatabase
         val values = ContentValues().apply {
             put(TaskDatabaseHelper.COL_IS_DONE, if (isDone) 1 else 0)
         }
-        db.update(
-            TaskDatabaseHelper.TABLE_TASKS,
-            values,
-            "${TaskDatabaseHelper.COL_ID}=?",
-            arrayOf(id.toString())
-        )
+        db.update(TaskDatabaseHelper.TABLE_TASKS, values, "${TaskDatabaseHelper.COL_ID}=?", arrayOf(id.toString()))
         db.close()
     }
 }

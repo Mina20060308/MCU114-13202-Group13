@@ -3,33 +3,48 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp">
+    android:padding="12dp"
+    android:gravity="center_vertical">
 
+    <!-- 打勾框 -->
     <CheckBox
-        android:id="@+id/checkboxTask"
+        android:id="@+id/cbTaskDone"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
+    <!-- 任務內容 -->
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingStart="10dp">
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginStart="8dp">
 
+        <!-- 任務標題 -->
         <TextView
-            android:id="@+id/textTaskTitle"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvTaskTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="任務標題"
             android:textSize="16sp"
-            android:text="Task title" />
+            android:textColor="#333333"/>
 
+        <!-- 任務日期 -->
         <TextView
-            android:id="@+id/textTaskTime"
-            android:layout_width="wrap_content"
+            android:id="@+id/tvTaskDate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:text="10:30" />
+            android:text="2025-12-26"
+            android:textSize="14sp"
+            android:textColor="#666666"/>
 
+        <!-- 任務時間 -->
+        <TextView
+            android:id="@+id/tvTaskTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="14:30"
+            android:textSize="14sp"
+            android:textColor="#666666"/>
     </LinearLayout>
-
 </LinearLayout>

@@ -16,7 +16,7 @@ import java.util.List;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
     public interface OnTaskCheckedListener {
-        void onChecked(Task task);
+        void onChecked(Task task, int position);
     }
 
     private List<Task> taskList;
@@ -30,13 +30,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     static class TaskViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkboxTask;
         TextView textTaskTitle;
+        TextView textTaskDate;
         TextView textTaskTime;
 
-        public TaskViewHolder(@NonNull View itemView) {
+        TaskViewHolder(@NonNull View itemView) {
             super(itemView);
-            checkboxTask = itemView.findViewById(R.id.checkboxTask);
-            textTaskTitle = itemView.findViewById(R.id.textTaskTitle);
-            textTaskTime = itemView.findViewById(R.id.textTaskTime);
+            checkboxTask = itemView.findViewById(R.id.cbTaskDone);
+            textTaskTitle = itemView.findViewById(R.id.tvTaskTitle);
+            textTaskDate = itemView.findViewById(R.id.tvTaskDate);
+            textTaskTime = itemView.findViewById(R.id.tvTaskTime);
         }
     }
 
@@ -50,22 +52,41 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
-        Task task = taskList.get(position);
+        final Task task = taskList.get(position);
 
         holder.textTaskTitle.setText(task.getTitle());
-        holder.textTaskTime.setText(task.getTime() == null ? "" : task.getTime());
+
+        if (task.getDate() != null && !task.getDate().isEmpty()) {
+            holder.textTaskDate.setText(task.getDate());
+            holder.textTaskDate.setVisibility(View.VISIBLE);
+        } else {
+            holder.textTaskDate.setVisibility(View.GONE);
+        }
+
+        if (task.getTime() != null && !task.getTime().isEmpty()) {
+            holder.textTaskTime.setText("提醒事項 " + task.getTime());
+            holder.textTaskTime.setVisibility(View.VISIBLE);
+        } else {
+            holder.textTaskTime.setVisibility(View.GONE);
+        }
+
+        holder.checkboxTask.setOnCheckedChangeListener(null);
         holder.checkboxTask.setChecked(task.isDone());
 
+        final int pos = position;
         holder.checkboxTask.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (listener != null) {
-                listener.onChecked(task);
-            }
+            if (listener != null) listener.onChecked(task, pos);
         });
     }
 
     @Override
     public int getItemCount() {
         return taskList.size();
+    }
+
+    public void updateTaskAt(int position, Task task) {
+        taskList.set(position, task);
+        notifyItemChanged(position);
     }
 
     public void updateTaskList(List<Task> newTaskList) {

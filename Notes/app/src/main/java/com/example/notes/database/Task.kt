@@ -1,12 +1,11 @@
 package com.example.notes.database
 
 data class Task(
-    val id: Int = 0,
-    val title: String,
-    val date: String,
-    val time: String?,
-    val period: String,
-    val isDone: Boolean = false,
-    val userId: Int // ⭐加上 userId
-
+    var id: Int = 0,
+    var title: String,
+    var date: String = "",
+    var time: String = "",
+    var period: String,
+    var isDone: Boolean = false,
+    var userId: Int
 )

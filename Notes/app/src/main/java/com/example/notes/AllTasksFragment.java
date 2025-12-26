@@ -1,10 +1,9 @@
 package com.example.notes;
 
-import  android.os.Bundle;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -12,16 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notes.database.Task;
-import com.example.notes.database.TaskRepository;
+import com.example.notes.database.TaskDatabaseHelper;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AllTasksFragment extends Fragment {
 
     private RecyclerView rvAllTasks;
     private TaskAdapter adapter;
-    private TaskRepository taskRepo;
+    private TaskDatabaseHelper dbHelper;
     private int userId;
 
     @Nullable
@@ -35,7 +34,7 @@ public class AllTasksFragment extends Fragment {
         rvAllTasks = view.findViewById(R.id.rvAllTasks);
         rvAllTasks.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        taskRepo = new TaskRepository(requireContext());
+        dbHelper = new TaskDatabaseHelper(requireContext());
 
         if (getArguments() != null) {
             userId = getArguments().getInt("USER_ID", -1);
@@ -43,22 +42,19 @@ public class AllTasksFragment extends Fragment {
         if (userId == -1) return view;
 
         loadAllTasks();
+
         return view;
     }
 
     private void loadAllTasks() {
-        List<Task> allTasks = taskRepo.getTasksByUser(userId);
+        List<Task> allTasks = dbHelper.getTasksByUser(userId);
+        List<Task> pendingTasks = new ArrayList<>();
+        for (Task task : allTasks) {
+            if (!task.isDone()) pendingTasks.add(task);
+        }
 
-        // ⭐只顯示未完成的任務
-        List<Task> pendingTasks = allTasks.stream()
-                .filter(task -> !task.isDone())
-                .collect(Collectors.toList());
-
-        adapter = new TaskAdapter(pendingTasks, task -> {
-            // 打勾 → 標記為完成
-            taskRepo.updateTaskDone(task.getId(), true);
-
-            // 重新載入全部事項（已完成任務會消失）
+        adapter = new TaskAdapter(pendingTasks, (task, position) -> {
+            dbHelper.updateTaskDone(task.getId(), true);
             loadAllTasks();
         });
 

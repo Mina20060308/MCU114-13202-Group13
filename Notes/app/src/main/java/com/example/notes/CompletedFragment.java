@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -12,19 +11,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notes.database.Task;
-import com.example.notes.database.TaskRepository;
+import com.example.notes.database.TaskDatabaseHelper;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CompletedFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private TaskAdapter adapter;
-    private TaskRepository repository;
+    private TaskDatabaseHelper dbHelper;
     private int userId;
-
-    public CompletedFragment() { }
 
     @Nullable
     @Override
@@ -37,7 +34,7 @@ public class CompletedFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerCompletedTasks);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        repository = new TaskRepository(requireContext());
+        dbHelper = new TaskDatabaseHelper(requireContext());
 
         if (getArguments() != null) {
             userId = getArguments().getInt("USER_ID", -1);
@@ -50,16 +47,14 @@ public class CompletedFragment extends Fragment {
     }
 
     private void loadCompletedTasks() {
-        List<Task> allTasks = repository.getTasksByUser(userId);
+        List<Task> allTasks = dbHelper.getTasksByUser(userId);
+        List<Task> completedTasks = new ArrayList<>();
+        for (Task task : allTasks) {
+            if (task.isDone()) completedTasks.add(task);
+        }
 
-        // 只撈已完成的任務
-        List<Task> completedTasks = allTasks.stream()
-                .filter(Task::isDone)
-                .collect(Collectors.toList());
-
-        adapter = new TaskAdapter(completedTasks, task -> {
-            // 可取消完成
-            repository.updateTaskDone(task.getId(), !task.isDone());
+        adapter = new TaskAdapter(completedTasks, (task, position) -> {
+            dbHelper.updateTaskDone(task.getId(), !task.isDone());
             loadCompletedTasks();
         });
 
